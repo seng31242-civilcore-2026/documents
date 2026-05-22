@@ -1,0 +1,51 @@
+@startuml
+title Activity Diagram: UC-01 Submit Daily Report
+
+|Supervisor (Mobile App)|
+start
+:Click "Create Daily Report";
+
+|System|
+:Retrieve active tasks linked to BOQ;
+:Display task list;
+
+|Supervisor (Mobile App)|
+:Select completed tasks & enter quantities;
+:Log materials and equipment used;
+:Input worker count (skilled/unskilled) and hours;
+:Select weather condition;
+:Capture/upload site photos;
+
+|System|
+:Automatically geo-tag photos;
+
+|Supervisor (Mobile App)|
+:Log observed site issues/problems;
+:Click "Submit Report";
+
+|System|
+if (Are all mandatory fields complete?) then (No)
+  :Highlight missing fields;
+  |Supervisor (Mobile App)|
+  :Provide missing information;
+  :Click "Submit Report";
+else (Yes)
+  |System|
+  if (Active internet connection?) then (Yes)
+    :Validate inputs;
+    :Synchronize data with central database;
+    :Display success confirmation message;
+  else (No)
+    :Bypass immediate synchronization;
+    :Save report data to local device cache;
+    :Display "Saved Offline" message;
+    
+    note right
+      Background process will auto-sync 
+      when connection is restored
+    end note
+  endif
+endif
+
+stop
+@enduml
