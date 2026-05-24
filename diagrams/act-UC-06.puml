@@ -1,0 +1,26 @@
+@startuml
+title Activity Diagram: UC-06 View Owner Dashboard
+
+|Owner (Web App)|
+start
+:Access the main dashboard;
+
+|System|
+:Display high-level summary\nacross all active projects;
+
+|Owner (Web App)|
+:Select a specific date or date range;
+
+|System|
+fork
+  :Filter and display progress\nfor the selected period;
+fork again
+  :Retrieve and display cost\nversus budget overview;
+fork again
+  :Retrieve and display active alerts\nfor project delays or budget overruns;
+end fork
+
+:Compile and update Owner Dashboard view;
+
+stop
+@enduml
