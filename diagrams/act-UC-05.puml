@@ -1,0 +1,24 @@
+@startuml
+title Activity Diagram: UC-05 View Progress Dashboard
+
+|Manager (Web App)|
+start
+:Navigate to Project Dashboard;
+
+|System|
+fork
+  :Calculate overall project completion %\n(Reported daily tasks vs BOQ quantities);
+fork again
+  :Retrieve materials used vs budget;
+fork again
+  :Retrieve total labour hours logged per day;
+fork again
+  :Retrieve pending daily reports awaiting review;
+fork again
+  :Retrieve pending asset requests;
+end fork
+
+:Compile and display Progress Dashboard metrics;
+
+stop
+@enduml
