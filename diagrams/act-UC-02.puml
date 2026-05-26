@@ -1,0 +1,33 @@
+@startuml
+title Activity Diagram: UC-02 Setup Project and Manual BOQ Entry
+
+|Manager or QS (Web App)|
+start
+:Click "Create New Project";
+:Enter basic project details\n(name, location, start and end dates);
+:Assign Supervisors to project;
+:Create Gantt-style schedule\n(planned start/end per activity);
+
+|System|
+:Display dynamic BOQ entry form;
+
+|Manager or QS (Web App)|
+:Manually input work item name,\nplanned quantity, unit, and rate;
+:Click "Save Project";
+
+|System|
+if (Validation check: At least 1 Supervisor & 1 BOQ item?) then (Yes)
+  :Save project to database;
+  :Confirm project is active;
+else (No)
+  :Display error message\n(e.g., missing data);
+  |Manager or QS (Web App)|
+  :Correct validation errors;
+  :Click "Save Project";
+  |System|
+  :Save project to database;
+  :Confirm project is active;
+endif
+
+stop
+@enduml
