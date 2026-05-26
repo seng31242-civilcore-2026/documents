@@ -1,0 +1,28 @@
+@startuml
+title Activity Diagram: UC-03 Submit Asset Request
+
+|Supervisor (Mobile App)|
+start
+:Navigate to "Asset Requests" tab;
+:Select material or equipment needed for the next day;
+:Enter required quantity;
+:Specify needed date;
+:Click "Submit Request";
+
+|System|
+if (Active internet connection?) then (Yes)
+  :Save request to database with "Pending" status;
+  :Trigger alert for the Manager;
+  :Display success confirmation message;
+else (No)
+  :Cache request data locally on device;
+  :Display "Saved Offline" message;
+  note right
+    Background process will auto-sync
+    and alert Manager when connection
+    is restored
+  end note
+endif
+
+stop
+@enduml
