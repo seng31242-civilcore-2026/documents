@@ -1,0 +1,25 @@
+@startuml
+title System Sequence Diagram: UC-01 Submit Daily Report
+
+actor "Supervisor" as Sup
+participant "CivilCore System" as System
+
+Sup -> System: initiateDailyReport(date)
+System --> Sup: requestReportDetails()
+
+loop For each completed task
+    Sup -> System: enterTaskProgress(taskID, quantityUsed)
+end
+
+Sup -> System: enterLabourHours(skilledWorkers, unskilledWorkers, hours)
+Sup -> System: uploadSitePhotos(geoTaggedPhotos)
+
+Sup -> System: submitReport()
+
+alt Active Internet Connection
+    System --> Sup: displaySuccessConfirmation()
+else Offline Mode
+    System --> Sup: displayOfflineCacheMessage()
+end
+
+@enduml

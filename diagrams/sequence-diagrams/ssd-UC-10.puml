@@ -1,0 +1,18 @@
+@startuml
+title System Sequence Diagram: UC-10 Sync Offline Data
+
+actor "Supervisor (Mobile App)" as Sup
+participant "CivilCore System" as System
+
+Sup -> System: restoreInternetConnection()
+System -> System: detectActiveConnection()
+
+opt If local cache contains pending data
+    loop For each cached Daily Report / Asset Request
+        System -> System: syncDataPayload()
+    end
+    System --> Sup: displaySyncCompleteNotification()
+    System -> System: triggerManagerAlerts(pendingReports)
+end
+
+@enduml
