@@ -1,0 +1,25 @@
+@startuml
+title System Sequence Diagram: UC-02 Setup Project and Manual BOQ Entry
+
+actor "Manager / QS" as Mgr
+participant "CivilCore System" as System
+
+Mgr -> System: createNewProject(name, location, startEndDates)
+System --> Mgr: requestSupervisorAssignment()
+
+Mgr -> System: assignSupervisors(supervisorIDs)
+System --> Mgr: displayDynamicBOQForm()
+
+loop For each BOQ line item
+    Mgr -> System: inputBOQItem(itemName, plannedQuantity, unit, rate)
+end
+
+Mgr -> System: saveProject()
+
+alt Validation Passed (≥1 Supervisor & ≥1 BOQ item)
+    System --> Mgr: confirmProjectActive()
+else Validation Failed
+    System --> Mgr: displayErrorMessage(missingData)
+end
+
+@enduml
