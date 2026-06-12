@@ -1,0 +1,39 @@
+@startuml
+title Component Diagram: CivilCore High-Level Architecture
+
+package "Frontend Applications" {
+  component "Supervisor Mobile App\n(Flutter)" as MobileApp {
+    component "Offline Sync Manager" as SyncCache
+    component "Mobile UI Subsystem" as MobileUI
+    SyncCache -up-> MobileUI
+  }
+
+  component "Manager & Owner Web App\n(React)" as WebApp {
+    component "Dashboard Subsystem" as WebUI
+    component "BOQ & Project Manager" as BOQManager
+  }
+}
+
+package "Backend Services (Node.js)" {
+  component "CivilTrack REST API" as API {
+    port "Auth Controller" as Auth
+    port "Report Controller" as ReportCtrl
+    port "Project Controller" as ProjectCtrl
+    port "Asset Controller" as AssetCtrl
+  }
+}
+
+package "Data Layer" {
+  database "Relational Database\n(MySQL)" as DB
+  cloud "File Storage)" as Storage
+}
+
+' Define Relationships
+MobileApp ..> API : HTTPS / JSON
+WebApp ..> API : HTTPS / JSON
+
+API --> DB : SQL (TCP/IP)
+API --> Storage : API Requests (Media/Docs)
+MobileApp ..> Storage : HTTPS (Photo Uploads)
+
+@enduml

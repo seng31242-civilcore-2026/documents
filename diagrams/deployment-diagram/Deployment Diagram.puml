@@ -1,0 +1,35 @@
+@startuml
+title Deployment Diagram: CivilCore Infrastructure
+
+node "Supervisor Mobile Device\n<<iOS / Android>>" as MobileDevice {
+  artifact "CivilCore Mobile App\n(.apk / .ipa)" as MobileArtefact
+}
+
+node "Manager/Owner Workstation\n<<Windows / macOS>>" as PC {
+  node "Web Browser" as Browser {
+    artifact "CivilCore Web Dashboard\n(React JS/Tailwind CSS)" as WebArtefact
+  }
+}
+
+node "Cloud Infrastructure Environment" as Cloud {
+  node "Application Server" as AppServer {
+    artifact "CivilCore Backend API\n(Node.js)" as NodeApp
+  }
+
+  node "Database Server" as DBServer {
+    database "MySQL RDBMS" as MySQL
+  }
+
+  node "Cloud Object Storage" as ObjectStore {
+    cloud "S3 Bucket\n(Site Photos & Documents)" as S3
+  }
+}
+
+' Define Network Communications
+MobileArtefact --> NodeApp : HTTPS / REST (443)
+WebArtefact --> NodeApp : HTTPS / REST (443)
+NodeApp --> MySQL : TCP/IP (3306)
+NodeApp --> S3 : HTTPS (443)
+MobileArtefact --> S3 : HTTPS (443)
+
+@enduml
