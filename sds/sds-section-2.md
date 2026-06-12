@@ -1,0 +1,16 @@
+## 2. System Overview
+
+### 2.1 System Summary
+CivilCore is a streamlined, mobile-first construction site management platform tailored specifically for civil engineering teams. It is strategically designed to replace heavy enterprise software like Primavera P6, which field teams often find too cumbersome for daily site operations. The system focuses strictly on core field tracking and management capabilities, deliberately excluding complex resource levelling, financial accounting, and vendor procurement modules to ensure a lightweight user experience.
+
+The system serves three primary user roles across two distinct application platforms:
+*   **Supervisors (Mobile App):** Operating on a cross-platform Flutter mobile application, field supervisors can submit daily progress reports directly from the construction site. The application enables them to log completed tasks directly linked to the project's Bill of Quantities (BOQ), track labour hours (skilled and unskilled), record materials utilized, request future assets, and log on-site issues utilizing geo-tagged photos. Crucially, this application features robust offline capabilities, allowing supervisors to fill out reports without an active internet connection and automatically syncing the data when connectivity is restored.
+*   **Managers (Web Desktop App):** Utilizing a React-based web dashboard, managers are equipped to set up new projects, import BOQs (via CSV/Excel), assign supervisory teams, and review/approve incoming asset and material requests. The dashboard provides comprehensive progress monitoring, tracking actual project completion percentages against BOQ quantities, as well as monitoring materials used versus the allocated budget.
+*   **Owners (Web Desktop App):** Owners access a read-only global portfolio dashboard that provides a high-level summary across all active projects. This interface highlights overall progress, cost-versus-budget metrics, and surface-level system alerts regarding schedule delays or budget overruns.
+
+### 2.2 Relationship to Software Requirements Specification (SRS)
+This Software Design Specification is directly derived from the approved CivilCore Software Requirements Specification (SRS). The architectural decisions, database schemas, and interface designs outlined in the subsequent chapters provide the concrete technical blueprint required to realize both the functional and non-functional requirements established during the analysis phase.
+
+Specifically, this design physically models and accommodates the 10 core use cases defined in the SRS, ranging from daily reporting and progress monitoring to subcontractor tracking and document library management. Furthermore, the system architecture specifically resolves the critical constraints and success criteria identified in the SRS:
+*   **Performance & Usability Constraint:** The mobile user interface and backend database query structures are optimized to ensure a supervisor can successfully complete and submit a daily report in under 5 minutes.
+*   **Reliability Constraint:** The implementation of local caching within the mobile application fulfills the strict requirement for offline reporting capabilities in remote site locations with poor network coverage.
