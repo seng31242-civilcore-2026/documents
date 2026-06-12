@@ -1,0 +1,117 @@
+@startuml
+title Class Diagram: CivilCore System
+
+skinparam classAttributeIconSize 0
+
+abstract class User {
+  - id: UUID
+  - name: String
+  - email: String
+  - phoneNumber: String
+  + login(): Boolean
+  + logout(): void
+}
+
+class Supervisor {
+  - supervisorID: String
+  - isOffline: Boolean
+  + submitDailyReport(report: DailyReport): void
+  + requestAsset(request: AssetRequest): void
+  + logIssue(issue: Issue): void
+  + syncOfflineData(): void
+}
+
+class Manager {
+  - managerID: String
+  + createProject(details: Project): UUID
+  + setupBOQ(tasks: List<Task>): void
+  + reviewAssetRequest(requestID: UUID, status: String): void
+}
+
+class Owner {
+  - ownerID: String
+  + viewGlobalDashboard(): Map
+}
+
+User <|-- Supervisor
+User <|-- Manager
+User <|-- Owner
+
+class Project {
+  - projectID: UUID
+  - name: String
+  - location: String
+  - startDate: Date
+  - endDate: Date
+  - status: String
+  + calculateOverallProgress(): Float
+  + getCostVariance(): Float
+}
+
+class Task {
+  - taskID: UUID
+  - itemName: String
+  - plannedQuantity: Float
+  - unit: String
+  - rate: Float
+  + calculateTaskCompletion(): Float
+}
+
+class DailyReport {
+  - reportID: UUID
+  - reportDate: Date
+  - weatherCondition: String
+  - skilledWorkers: Integer
+  - unskilledWorkers: Integer
+  - laborHours: Float
+  - sitePhotos: List<String>
+  - syncStatus: String
+  + validateData(): Boolean
+  + saveToCache(): void
+}
+
+class AssetRequest {
+  - requestID: UUID
+  - itemName: String
+  - requestedQuantity: Float
+  - neededDate: Date
+  - approvalStatus: String
+  + updateStatus(newStatus: String): void
+}
+
+class Issue {
+  - issueID: UUID
+  - description: String
+  - photoUrl: String
+  - resolutionStatus: String
+  + markAsResolved(): void
+}
+
+class MaterialDelivery {
+  - deliveryID: UUID
+  - itemName: String
+  - quantity: Float
+  - deliveryDate: Date
+  - supplier: String
+  + logDelivery(): void
+}
+
+' Define Relationships
+Manager "1" -- "*" Project : manages >
+Supervisor "*" -- "*" Project : assigned to >
+Project "1" *-- "*" Task : contains BOQ >
+
+Supervisor "1" -- "*" DailyReport : creates >
+DailyReport "*" -- "1" Project : belongs to >
+DailyReport "*" -- "*" Task : updates progress of >
+
+Supervisor "1" -- "*" AssetRequest : submits >
+Manager "1" -- "*" AssetRequest : reviews >
+Project "1" *-- "*" AssetRequest : tracks >
+
+Project "1" *-- "*" Issue : has >
+Supervisor "1" -- "*" Issue : reports >
+
+Project "1" *-- "*" MaterialDelivery : receives >
+
+@enduml
