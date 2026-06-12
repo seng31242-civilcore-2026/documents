@@ -1,0 +1,36 @@
+@startuml
+title Detailed Sequence Diagram: UC-06 View Owner Dashboard
+autonumber
+skinparam maxMessageSize 150
+
+actor "Owner" as Own
+participant "WebDashboard\n<<React>>" as Web
+participant "DashboardController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Own -> Web: Access Global Dashboard
+activate Web
+
+Web -> API: GET /api/owner/dashboard
+activate API
+
+par Concurrent Global Queries
+    API -> DB: SELECT SUM(PlannedQty * Rate) AS Budget, SUM(Qty * Rate) AS Cost FROM Tasks JOIN TaskProgress
+    activate DB
+    DB --> API: return globalFinancials
+    deactivate DB
+    
+    API -> DB: SELECT ProjectID, Name, Status, EndDate FROM Projects
+    activate DB
+    DB --> API: return projectStatuses
+    deactivate DB
+end
+
+API -> API: Aggregate data & identify delays / budget overruns
+API --> Web: HTTP 200 OK (ownerDashboardJSON)
+deactivate API
+
+Web --> Own: Render Multi-Project Dashboard & Alerts
+deactivate Web
+
+@enduml

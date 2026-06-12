@@ -1,0 +1,43 @@
+@startuml
+title Detailed Sequence Diagram: UC-04 Progress Monitoring
+autonumber
+skinparam maxMessageSize 150
+
+actor "Manager" as Mgr
+participant "WebDashboard\n<<React>>" as Web
+participant "DashboardController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Mgr -> Web: Select Project to View Dashboard
+activate Web
+
+Web -> API: GET /api/projects/{projectID}/dashboard
+activate API
+
+par Query Metrics Concurrently
+    API -> DB: SELECT SUM(PlannedQty) FROM Tasks WHERE ProjectID={id}
+    activate DB
+    DB --> API: return totalPlanned
+    deactivate DB
+    
+    API -> DB: SELECT SUM(Qty) FROM TaskProgress WHERE ProjectID={id}
+    activate DB
+    DB --> API: return totalCompleted
+    deactivate DB
+    
+    API -> DB: SELECT SUM(LaborHours) FROM DailyReports WHERE ProjectID={id}
+    activate DB
+    DB --> API: return totalHours
+    deactivate DB
+end
+
+API -> API: Calculate overall completion % (totalCompleted / totalPlanned)
+API -> API: Format dashboard response payload
+
+API --> Web: HTTP 200 OK (dashboardMetricsJSON)
+deactivate API
+
+Web --> Mgr: Render Progress Charts, Labor Graphs & Budget Variance
+deactivate Web
+
+@enduml

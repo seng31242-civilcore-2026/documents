@@ -1,0 +1,28 @@
+@startuml
+title Detailed Sequence Diagram: UC-08 Material Delivery Log
+autonumber
+skinparam maxMessageSize 150
+
+actor "Supervisor" as Sup
+participant "MobileApp\n<<Flutter>>" as Mobile
+participant "DeliveryController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Sup -> Mobile: Enter Delivery Details (Item, Qty, Supplier, Date)
+activate Mobile
+
+Mobile -> API: POST /api/deliveries (deliveryData)
+activate API
+
+API -> DB: INSERT INTO MaterialDeliveries (ProjectID, ItemName, Quantity, Supplier, DeliveryDate)
+activate DB
+DB --> API: return deliveryID
+deactivate DB
+
+API --> Mobile: HTTP 201 Created
+deactivate API
+
+Mobile --> Sup: Display "Material Delivery Logged"
+deactivate Mobile
+
+@enduml

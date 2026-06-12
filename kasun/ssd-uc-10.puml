@@ -1,0 +1,49 @@
+@startuml
+title Detailed Sequence Diagram: UC-10 Offline Data Sync
+autonumber
+skinparam maxMessageSize 150
+
+actor "Supervisor" as Sup
+participant "MobileOS\n<<Android/iOS>>" as OS
+participant "SyncManager\n<<Flutter Background>>" as Sync
+database "LocalSQLite\n<<Device Cache>>" as LocalDB
+participant "SyncController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Sup -> OS: Connect to Wi-Fi / Cellular
+activate OS
+OS -> Sync: broadcast(NetworkRestoredEvent)
+deactivate OS
+activate Sync
+
+Sync -> LocalDB: SELECT * FROM PendingPayloads
+activate LocalDB
+LocalDB --> Sync: return un-synced reports & requests
+deactivate LocalDB
+
+alt IF Pending Data Exists
+    loop For each cached payload (Daily Report / Asset Request)
+        Sync -> API: POST /api/sync (payloadJSON)
+        activate API
+        
+        API -> DB: BEGIN TRANSACTION
+        activate DB
+        API -> DB: INSERT Data (Reports, Tasks, Labour)
+        API -> DB: COMMIT
+        DB --> API: return success
+        deactivate DB
+        
+        API --> Sync: HTTP 200 OK
+        deactivate API
+        
+        Sync -> LocalDB: DELETE FROM PendingPayloads WHERE ID={payloadID}
+        activate LocalDB
+        LocalDB --> Sync: success
+        deactivate LocalDB
+    end
+    
+    Sync --> Sup: Display Push Notification: "Offline Data Synced Successfully"
+end
+
+deactivate Sync
+@enduml

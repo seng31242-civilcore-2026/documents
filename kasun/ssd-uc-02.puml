@@ -1,0 +1,44 @@
+@startuml
+title Detailed Sequence Diagram: UC-02 Setup Project & BOQ
+autonumber
+skinparam maxMessageSize 150
+
+actor "Manager" as Mgr
+participant "WebDashboard\n<<React>>" as UI
+participant "ProjectController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Mgr -> UI: Enter Project Details (Name, Location, Dates)
+activate UI
+
+Mgr -> UI: Click "Create Project"
+UI -> API: POST /api/projects (projectData)
+activate API
+
+API -> DB: INSERT INTO Projects (Name, Location, Start, End)
+activate DB
+DB --> API: return projectID
+deactivate DB
+
+API --> UI: HTTP 201 Created (projectID)
+deactivate API
+
+Mgr -> UI: Input BOQ Items (Task Names, Quantities, Rates)
+Mgr -> UI: Click "Save BOQ"
+UI -> API: POST /api/projects/{projectID}/boq (boqList)
+activate API
+
+loop For each BOQ item
+    API -> DB: INSERT INTO Tasks (projectID, itemName, quantity, rate)
+    activate DB
+    DB --> API: return taskID
+    deactivate DB
+end
+
+API --> UI: HTTP 200 OK (BOQ Saved)
+deactivate API
+
+UI --> Mgr: Display "Project Setup Complete"
+deactivate UI
+
+@enduml
