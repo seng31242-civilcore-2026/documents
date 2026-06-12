@@ -1,0 +1,66 @@
+@startuml
+title UI Navigation Flow Diagram: CivilCore
+skinparam state {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+}
+
+state "Authentication" as Auth {
+  state "Login Screen" as Login
+}
+
+state "Supervisor Mobile App (Flutter)" as MobileApp {
+  state "Mobile Dashboard" as MobileHome
+  state "Daily Report Form" as DailyReport
+  state "Asset Request Form" as AssetReq
+  state "Issue/Snag Log Form" as IssueLog
+  state "Material Delivery Log" as MatDelivery
+
+  MobileHome --> DailyReport : Tap "Submit Report"
+  MobileHome --> AssetReq : Tap "Request Asset"
+  MobileHome --> IssueLog : Tap "Log Issue"
+  MobileHome --> MatDelivery : Tap "Log Delivery"
+  
+  DailyReport --> MobileHome : Submit / Save Offline
+  AssetReq --> MobileHome : Submit
+  IssueLog --> MobileHome : Submit
+  MatDelivery --> MobileHome : Submit
+}
+
+state "Manager Web App (React)" as WebManager {
+  state "Manager Dashboard" as MgrHome
+  state "Project Setup Screen" as ProjSetup
+  state "BOQ Management Screen" as BOQSetup
+  state "Pending Approvals (Assets)" as Approvals
+  state "Issue Resolution List" as IssueRes
+  state "Project Progress View" as ProjProgress
+
+  MgrHome --> ProjSetup : Click "Create Project"
+  ProjSetup --> BOQSetup : Next: "Setup BOQ"
+  BOQSetup --> MgrHome : "Save BOQ"
+  
+  MgrHome --> Approvals : Click "Review Requests"
+  Approvals --> MgrHome : Approve/Reject
+  
+  MgrHome --> IssueRes : Click "View Issues"
+  IssueRes --> MgrHome : Resolve
+  
+  MgrHome --> ProjProgress : Click "View Progress"
+  ProjProgress --> MgrHome : Back
+}
+
+state "Owner Web App (React)" as WebOwner {
+  state "Global Portfolio Dashboard" as OwnerHome
+  state "Alerts & Notifications" as Alerts
+  
+  OwnerHome --> Alerts : Click "View Delays/Overruns"
+  Alerts --> OwnerHome : Back
+}
+
+[*] --> Login
+
+Login --> MobileHome : [Role = Supervisor]
+Login --> MgrHome : [Role = Manager]
+Login --> OwnerHome : [Role = Owner]
+
+@enduml
