@@ -1,0 +1,55 @@
+@startuml
+title Detailed Sequence Diagram: UC-03 Asset Request & Approval
+autonumber
+skinparam maxMessageSize 150
+
+actor "Supervisor" as Sup
+participant "MobileApp\n<<Flutter>>" as Mobile
+participant "AssetController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+participant "WebDashboard\n<<React>>" as Web
+actor "Manager" as Mgr
+
+== Part 1: Supervisor Submits Request ==
+Sup -> Mobile: Fill Asset Request (Item, Qty, Needed Date)
+activate Mobile
+Sup -> Mobile: Tap "Submit Request"
+
+Mobile -> API: POST /api/assets (requestData)
+activate API
+API -> DB: INSERT INTO AssetRequests (ProjectID, Item, Qty, Status='Pending')
+activate DB
+DB --> API: return requestID
+deactivate DB
+
+API --> Mobile: HTTP 201 Created
+deactivate API
+Mobile --> Sup: Display "Request Sent to Manager"
+deactivate Mobile
+
+== Part 2: Manager Reviews Request ==
+Mgr -> Web: Open Pending Asset Requests
+activate Web
+Web -> API: GET /api/assets?status=pending
+activate API
+API -> DB: SELECT * FROM AssetRequests WHERE Status='Pending'
+activate DB
+DB --> API: return rows
+deactivate DB
+API --> Web: JSON Array (requests)
+deactivate API
+Web --> Mgr: Display List of Pending Requests
+
+Mgr -> Web: Click "Approve" on Request
+Web -> API: PUT /api/assets/{requestID} (status='Approved')
+activate API
+API -> DB: UPDATE AssetRequests SET Status='Approved' WHERE ID={requestID}
+activate DB
+DB --> API: return success
+deactivate DB
+API --> Web: HTTP 200 OK
+deactivate API
+Web --> Mgr: Display "Request Approved"
+deactivate Web
+
+@enduml

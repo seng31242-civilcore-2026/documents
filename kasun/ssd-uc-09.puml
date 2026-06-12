@@ -1,0 +1,35 @@
+@startuml
+title Detailed Sequence Diagram: UC-09 Document Library Management
+autonumber
+skinparam maxMessageSize 150
+
+actor "Manager" as Mgr
+participant "WebDashboard\n<<React>>" as Web
+participant "DocumentController\n<<Node.js API>>" as API
+participant "S3Storage\n<<Cloud>>" as S3
+database "MySQL\n<<Database>>" as DB
+
+Mgr -> Web: Select Project & Upload Document (PDF/DWG)
+activate Web
+Mgr -> Web: Click "Upload File"
+
+Web -> API: POST /api/documents/upload (file_stream)
+activate API
+
+API -> S3: PUT /bucket/projects/{projectID}/ (file_stream)
+activate S3
+S3 --> API: return fileURL
+deactivate S3
+
+API -> DB: INSERT INTO Documents (ProjectID, FileName, FileURL, UploadDate)
+activate DB
+DB --> API: return docID
+deactivate DB
+
+API --> Web: HTTP 201 Created (docMetadataJSON)
+deactivate API
+
+Web --> Mgr: Update Document Library Grid View
+deactivate Web
+
+@enduml

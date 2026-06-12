@@ -1,0 +1,34 @@
+@startuml
+title Detailed Sequence Diagram: UC-05 Subcontractor Tracking
+autonumber
+skinparam maxMessageSize 150
+
+actor "Manager" as Mgr
+participant "WebDashboard\n<<React>>" as Web
+participant "SubcontractorController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Mgr -> Web: Enter Subcontractor Details & Quotation Amount
+activate Web
+Mgr -> Web: Assign Subcontractor to Specific Task (BOQ Item)
+
+Web -> API: POST /api/subcontractors (subcontractorData)
+activate API
+
+API -> DB: INSERT INTO Subcontractors (Name, Contact, QuotationAmount)
+activate DB
+DB --> API: return subID
+deactivate DB
+
+API -> DB: UPDATE Tasks SET SubcontractorID={subID} WHERE TaskID={taskID}
+activate DB
+DB --> API: return success
+deactivate DB
+
+API --> Web: HTTP 201 Created
+deactivate API
+
+Web --> Mgr: Display "Subcontractor Assigned Successfully"
+deactivate Web
+
+@enduml

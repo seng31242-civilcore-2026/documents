@@ -1,0 +1,46 @@
+@startuml
+title Detailed Sequence Diagram: UC-01 Submit Daily Report
+autonumber
+skinparam maxMessageSize 150
+
+actor "Supervisor" as Sup
+participant "MobileUI\n<<Flutter>>" as UI
+participant "SyncManager\n<<Local Cache>>" as Cache
+participant "ReportController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+
+Sup -> UI: Fill Daily Report (Tasks, Labor, Weather, Photos)
+activate UI
+
+Sup -> UI: Tap "Submit Report"
+UI -> UI: Validate inputs (hours, completed quantities)
+
+UI -> Cache: Check network status
+activate Cache
+Cache --> UI: status = online
+deactivate Cache
+
+UI -> API: POST /api/reports (reportPayload)
+activate API
+
+API -> API: Validate authentication token & payload
+
+API -> DB: INSERT INTO DailyReports (Date, Weather, Labor)
+activate DB
+DB --> API: return reportID
+deactivate DB
+
+loop For each completed Task/Material
+    API -> DB: INSERT INTO TaskProgress (reportID, taskID, quantity)
+    activate DB
+    DB --> API: return progressID
+    deactivate DB
+end
+
+API --> UI: HTTP 201 Created (Success)
+deactivate API
+
+UI --> Sup: Display "Report Submitted Successfully"
+deactivate UI
+
+@enduml

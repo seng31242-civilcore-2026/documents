@@ -1,0 +1,56 @@
+@startuml
+title Detailed Sequence Diagram: UC-07 Issue / Snag Logging
+autonumber
+skinparam maxMessageSize 150
+
+actor "Supervisor" as Sup
+participant "MobileApp\n<<Flutter>>" as Mobile
+participant "IssueController\n<<Node.js API>>" as API
+database "MySQL\n<<Database>>" as DB
+participant "S3Storage\n<<Cloud>>" as S3
+participant "WebDashboard\n<<React>>" as Web
+actor "Manager" as Mgr
+
+== Part 1: Supervisor Reports Issue ==
+Sup -> Mobile: Capture Issue Photo & Add Description
+activate Mobile
+
+Mobile -> S3: POST /upload (photo_file)
+activate S3
+S3 --> Mobile: return photoURL (HTTPS)
+deactivate S3
+
+Mobile -> API: POST /api/issues (description, photoURL)
+activate API
+API -> DB: INSERT INTO Issues (ProjectID, Description, PhotoURL, Status='Open')
+activate DB
+DB --> API: return issueID
+deactivate DB
+
+API --> Mobile: HTTP 201 Created
+deactivate API
+Mobile --> Sup: Display "Issue Logged Successfully"
+deactivate Mobile
+
+== Part 2: Manager Resolves Issue ==
+Mgr -> Web: View Open Issues
+activate Web
+Web -> API: GET /api/issues?status=open
+API --> Web: return issueListJSON
+Web --> Mgr: Render Issue List
+
+Mgr -> Web: Click "Mark as Resolved" on Issue
+Web -> API: PUT /api/issues/{issueID} (Status='Resolved')
+activate API
+API -> DB: UPDATE Issues SET Status='Resolved' WHERE ID={issueID}
+activate DB
+DB --> API: return success
+deactivate DB
+
+API --> Web: HTTP 200 OK
+deactivate API
+Web --> Mgr: Display "Issue Resolved"
+deactivate Web
+
+@enduml
+
